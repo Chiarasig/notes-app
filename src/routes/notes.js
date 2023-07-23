@@ -8,31 +8,36 @@ router.get('/notes/add', (req, res) =>{
 })
 
 router.post('/notes/new-note', async(req, res) =>{
-    const {tittle, description} = req.body;
+    const {title, description} = req.body;
     const errors = [];
-    if(!tittle){
-        errors.push({text: 'Please Write a Tittle'})
+    if(!title){
+        errors.push({text: 'Please Write a Title'})
     }
     if (!description){
-        errors.push({text: 'Please Write a Description'})
+        errors.push({text: 'Please Write a description'})
     }
     if(errors.length > 0){
         res.render('notes/new-note', {
             errors,
-            tittle,
+            title,
             description
         });
     } else {
-        const newNote = new Note({tittle, description});
+        const newNote = new Note({title, description});
         await newNote.save();
         res.redirect('/notes')
     }
 })
 
-router.get('/notes', (req, res) =>{
-    res.send('Notes from database');
-})
-
+router.get('/notes', async (req, res) =>{
+    try {
+        const notes = await Note.find();
+        res.render('notes/all-notes', {notes});
+    } catch (error) {
+        console.error('Error fetching notes:', error);
+        res.status(500).send('Error fetching notes');
+    }
+});
 
 
 module.exports = router;
