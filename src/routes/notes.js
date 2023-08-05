@@ -31,7 +31,7 @@ router.post('/notes/new-note', async(req, res) =>{
 
 router.get('/notes', async (req, res) =>{
     try {
-        const notes = await Note.find();
+        const notes = await Note.find().sort({date: 'desc'});
         res.render('notes/all-notes', {notes});
     } catch (error) {
         console.error('Error fetching notes:', error);
@@ -39,5 +39,26 @@ router.get('/notes', async (req, res) =>{
     }
 });
 
+
+router.get('/notes/edit/:id', async (req, res) =>{
+    try {
+        const note = await Note.findById(req.params.id)
+        res.render('notes/edit-note', {note})
+    } catch (error) {
+        console.error('Error fetching notes:', error);
+        res.status(500).send('Error fetching notes');
+    }
+});
+
+router.put('/notes/edit-note/:id', async (req, res) =>{
+    try {
+        const {title, description}= req.body;
+        await Note.findByIdAndUpdate(req.params.id, {title, description});
+        res.redirect('/notes')
+    } catch (error) {
+        console.error('Error fetching notes:', error);
+        res.status(500).send('Error fetching notes');
+    }
+}); 
 
 module.exports = router;
